@@ -50,6 +50,22 @@ class ViewController: UIViewController {
         }
     }
     
+    func makeAlert(task:String,id:Int){
+        var textField = UITextField()
+        let alert = UIAlertController(title: "Update Task", message: "", preferredStyle: .alert)
+        alert.addTextField { (tf) in
+            tf.text = task
+            textField = tf
+        }
+        alert.addAction(.init(title: "update", style: .default, handler: { (action) in
+            TaskModel.UPdateTaskWithObjective(objective: textField.text!, id: id) { (data, res, err) in
+                self.apidata(data: data)
+
+            }
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
 
 }
 
@@ -60,25 +76,24 @@ extension ViewController:UITableViewDataSource,UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell1", for: indexPath)
-        cell.textLabel?.text = apiarray![indexPath.row].objective
+        cell.textLabel?.text = apiarray![indexPath.row].objectiv
         cell.detailTextLabel?.text = apiarray![indexPath.row].created_at
-         print(apiarray![indexPath.row].objective)
-        print(apiarray![indexPath.row].created_at)
 
         return cell
     }
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .normal, title: "UPdate") { (ac, view, nil) in
-            
+            self.makeAlert(task: self.apiarray![indexPath.row].objectiv!, id: self.apiarray![indexPath.row].id!)
+            print(self.apiarray![indexPath.row].id!)
         }
         return UISwipeActionsConfiguration(actions: [action])
     }
+    
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .destructive, title: "delete") { (ac, view, nil) in
-            TaskModel.DeleteTaskWithObjective(id: self.apiarray![indexPath.row].id) { (data, res, er) in
-                DispatchQueue.main.async {
-                    self.tableview.reloadData()
-                }
+            TaskModel.DeleteTaskWithObjective(id: self.apiarray![indexPath.row].id!) { (data, res, er) in
+                self.apidata(data: data)
+
             }
             
         }
@@ -88,10 +103,11 @@ extension ViewController:UITableViewDataSource,UITableViewDelegate{
     
 }
 
+
 struct taskAPI:Codable {
-    let id:Int
-    let objective:String
-    let created_at :String
+    let id:Int?
+    let objectiv:String?
+    let created_at :String?
     
 }
 
